@@ -8,7 +8,7 @@ jobs:
   build-and-deploy: # job 的名称
     runs-on: ubuntu-latest # 指定虚拟环境类型
 
-  steps:
+  uses:
     # 获取当前 repository 代码
     - name: Checkout
       uses: actions/checkout@v3
