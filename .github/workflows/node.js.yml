@@ -10,7 +10,7 @@ jobs:
 
   uses:
     # 获取当前 repository 代码
-    - name: Checkout
+    - name: checkout
       uses: actions/checkout@v3
 
     # 在工作流中安装 Node v16
