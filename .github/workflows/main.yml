@@ -1,44 +1,34 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Vue CI
-
-# Controls when the workflow will run
+name: Deploy to Github Pages # 当前 workflow 的名称
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: # 当 release 分支发生 push 事件，触发该 workflow
+      - main
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  build-and-deploy: # job 的名称
+    runs-on: ubuntu-latest # 指定虚拟环境类型
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      
-      - name: Build and Deploy
-        # 构建发布 Github pages
-        uses: JamesIves/github-pages-deploy-action@v4.3.3
-        # 该步骤所需的环境变量
-        env:
-          ACCESS_TOKEN: ${{ secrets.TOKEN }}
-          # 在部署前要checkout的基本分支，默认是master
-          BASE_BRANCH: main # The branch the action should deploy from.
-          # 指定部署的分支，默认是 gh-pages 分支
-          BRANCH: gh-pages # The branch the action should deploy to.
-          # 存储库中要部署的文件夹。
-          # 该步骤会将项目中 FOLDER 指定文件夹下的文件推送到 BRANCH 分支，作为Github Pages 部署的内容。
-          # Vue CLI默认打包到 dist 目录
-          FOLDER: dist # The folder the action should deploy.
-          # 在向 BRANCH 分支推送代码前，可以指定构建脚本
-          BUILD_SCRIPT: npm install && npm run build # The build script the action should run prior to deploying.
+    steps: 
+    # 获取当前 repository 代码
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # 在工作流中安装 Node v16
+    - name: Setup Node.js enviroment
+      uses: actions/setup-node@v3
+      with:
+        node-version: 12
+
+    # 安装依赖，执行 yarn build
+    - name: Install dependencies && Build application
+      env:
+        BASE: 'blog' # 配置环境变量
+      run: yarn install && yarn build
+
+    # 将打包后的产物部署到 Github Pages 上
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.TOKEN }}
+        publish_dir: ./build
       
